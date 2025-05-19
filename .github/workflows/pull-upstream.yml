@@ -49,7 +49,6 @@ jobs:
         cd mozilla-unified
         git remote add floorp https://${{ secrets.PAT }}@github.com/${{ github.repository }}.git
         git fetch floorp
-        git fetch origin ESR128:refs/remotes/origin/ESR128
 
     - name: Push 🎁
       run: |
@@ -61,7 +60,7 @@ jobs:
         git config --global core.compression 9
         git config --global pack.windowMemory "100m"
 
-        COMMIT_COUNT=$(git rev-list --count upstream-esr128-${DATE_STR} ^origin/ESR128)
+        COMMIT_COUNT=$(git rev-list --count upstream-esr128-${DATE_STR} ^floorp/ESR128)
         if [ "$COMMIT_COUNT" -gt 50 ]; then
           for ((i=COMMIT_COUNT; i>0; i-=50)); do
             END=$i
