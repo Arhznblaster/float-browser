@@ -54,6 +54,11 @@ jobs:
       run: |
         cd mozilla-unified
         git config --global http.postBuffer 524288000
+        git config --global http.maxRequestBuffer 100M
+        git config --global http.lowSpeedLimit 0
+        git config --global http.lowSpeedTime 999999
+        git config --global core.compression 9
+        git config --global pack.windowMemory "100m"
         git push floorp upstream-esr128-${DATE_STR}
 
     - name: Create Pull Request
