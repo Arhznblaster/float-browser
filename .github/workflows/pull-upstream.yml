@@ -69,7 +69,9 @@ jobs:
               START=1
             fi
             git checkout -b temp-push-branch upstream-esr128-${DATE_STR}~$((COMMIT_COUNT-END))
-            git cherry-pick upstream-esr128-${DATE_STR}~$((COMMIT_COUNT-END))~$((END-START)):upstream-esr128-${DATE_STR}~$((COMMIT_COUNT-START))
+            for ((j=START; j<=END; j++)); do
+              git cherry-pick upstream-esr128-${DATE_STR}~$((COMMIT_COUNT-j))
+            done
             git push floorp temp-push-branch:upstream-esr128-${DATE_STR}
             git checkout upstream-esr128-${DATE_STR}
             git branch -D temp-push-branch
