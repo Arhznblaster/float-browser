@@ -59,7 +59,24 @@ jobs:
         git config --global http.lowSpeedTime 999999
         git config --global core.compression 9
         git config --global pack.windowMemory "100m"
-        git push floorp upstream-esr128-${DATE_STR}
+
+        COMMIT_COUNT=$(git rev-list --count upstream-esr128-${DATE_STR} ^origin/ESR128)
+        if [ "$COMMIT_COUNT" -gt 50 ]; then
+          for ((i=COMMIT_COUNT; i>0; i-=50)); do
+            END=$i
+            START=$((i-49))
+            if [ "$START" -lt 1 ]; then
+              START=1
+            fi
+            git checkout -b temp-push-branch upstream-esr128-${DATE_STR}~$((COMMIT_COUNT-END))
+            git cherry-pick upstream-esr128-${DATE_STR}~$((COMMIT_COUNT-END))~$((END-START)):upstream-esr128-${DATE_STR}~$((COMMIT_COUNT-START))
+            git push floorp temp-push-branch:upstream-esr128-${DATE_STR}
+            git checkout upstream-esr128-${DATE_STR}
+            git branch -D temp-push-branch
+          done
+        else
+          git push floorp upstream-esr128-${DATE_STR}
+        fi
 
     - name: Create Pull Request
       run: |
