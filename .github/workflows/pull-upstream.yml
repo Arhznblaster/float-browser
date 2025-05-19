@@ -49,6 +49,7 @@ jobs:
         cd mozilla-unified
         git remote add floorp https://${{ secrets.PAT }}@github.com/${{ github.repository }}.git
         git fetch floorp
+        git fetch origin ESR128:refs/remotes/origin/ESR128
 
     - name: Push 🎁
       run: |
