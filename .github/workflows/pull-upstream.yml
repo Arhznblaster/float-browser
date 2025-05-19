@@ -53,6 +53,7 @@ jobs:
     - name: Push 🎁
       run: |
         cd mozilla-unified
+        git config --global http.postBuffer 524288000
         git push floorp upstream-esr128-${DATE_STR}
 
     - name: Create Pull Request
