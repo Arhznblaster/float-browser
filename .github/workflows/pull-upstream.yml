@@ -26,23 +26,11 @@ jobs:
         git config --global user.name github-actions
         git config --global user.email github-actions@github.com
 
-    - name: Setup git-cinnabar 🪛
+    - name: Clone Mozilla Firefox 🧬
       run: |
-        cd ~
-        git clone https://github.com/glandium/git-cinnabar
-        cd git-cinnabar
-        git checkout 0.5.11
-        export PATH=~/git-cinnabar:$PATH
-        cd ~
-        git cinnabar download
-
-    - name: Clone mozilla-unified 🧬
-      run: |
-        export PATH=~/git-cinnabar:$PATH
-        git clone hg::https://hg.mozilla.org/mozilla-unified
-        cd mozilla-unified
-        git rev-list --count origin/bookmarks/esr128
-        git checkout -b upstream-esr128-${DATE_STR} origin/bookmarks/esr128
+        git clone https://github.com/mozilla-firefox/firefox.git
+        cd firefox
+        git checkout -b upstream-esr128-${DATE_STR} origin/esr128
 
     - name: Fetch Floorp 📥
       run: |
@@ -53,39 +41,7 @@ jobs:
     - name: Push 🎁
       run: |
         cd mozilla-unified
-        git config --global http.postBuffer 524288000
-        git config --global http.maxRequestBuffer 100M
-        git config --global http.lowSpeedLimit 0
-        git config --global http.lowSpeedTime 999999
-        git config --global core.compression 9
-        git config --global pack.windowMemory "100m"
-
-        COMMIT_COUNT=$(git rev-list --count upstream-esr128-${DATE_STR} ^floorp/ESR128)
-        if [ "$COMMIT_COUNT" -gt 50 ]; then
-          for ((i=COMMIT_COUNT; i>0; i-=50)); do
-            END=$i
-            START=$((i-49))
-            if [ "$START" -lt 1 ]; then
-              START=1
-            fi
-            git checkout -b temp-push-branch upstream-esr128-${DATE_STR}~$((COMMIT_COUNT-END))
-            for ((j=START; j<=END; j++)); do
-              if ! git cherry-pick upstream-esr128-${DATE_STR}~$((COMMIT_COUNT-j)); then
-                if git status | grep -q "nothing to commit, working tree clean"; then
-                  git cherry-pick --skip
-                else
-                  git cherry-pick --abort
-                  exit 1
-                fi
-              fi
-            done
-            git push floorp temp-push-branch:upstream-esr128-${DATE_STR}
-            git checkout upstream-esr128-${DATE_STR}
-            git branch -D temp-push-branch
-          done
-        else
-          git push floorp upstream-esr128-${DATE_STR}
-        fi
+        git push floorp upstream-esr128-${DATE_STR}
 
     - name: Create Pull Request
       run: |
