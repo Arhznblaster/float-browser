@@ -70,7 +70,14 @@ jobs:
             fi
             git checkout -b temp-push-branch upstream-esr128-${DATE_STR}~$((COMMIT_COUNT-END))
             for ((j=START; j<=END; j++)); do
-              git cherry-pick upstream-esr128-${DATE_STR}~$((COMMIT_COUNT-j))
+              if ! git cherry-pick upstream-esr128-${DATE_STR}~$((COMMIT_COUNT-j)); then
+                if git status | grep -q "nothing to commit, working tree clean"; then
+                  git cherry-pick --skip
+                else
+                  git cherry-pick --abort
+                  exit 1
+                fi
+              fi
             done
             git push floorp temp-push-branch:upstream-esr128-${DATE_STR}
             git checkout upstream-esr128-${DATE_STR}
